@@ -4,8 +4,9 @@ from typing import Optional
 import sys
 import os
 
+from fastapi.middleware.cors import CORSMiddleware
 # --- Add project root to the Python path ---
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.path.dirname(os.path.abspath(_file_))
 project_root = os.path.dirname(current_dir)
 sys.path.append(project_root)
 # -----------------------------------------
@@ -17,14 +18,25 @@ from core.external_api_client import get_medlineplus_info
 from core.location_finder import find_nearby_doctors
 from core.llm_wrapper import get_llm_response
 from utils.logger import get_logger
-# --- Import the chat recorder ---
-from core.chat_recorder import record_chat
+# --- Corrected Import Path ---
+from utils.chat_recorder import record_chat
 
-logger = get_logger(__name__)
+logger = get_logger(_name_)
 app = FastAPI(
     title="Symptom Checker Chatbot (Stable Version)",
     description="An API that uses a reliable KG-First model for symptom analysis and records chats.",
     version="7.0.0"
+)
+
+# CORS Middleware Configuration
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class UserQuery(BaseModel):
@@ -33,6 +45,10 @@ class UserQuery(BaseModel):
 
 class ChatbotResponse(BaseModel):
     response: str
+
+@app.get("/")
+async def read_root():
+    return {"message": "Symptom Checker API is up and running!"}
 
 @app.post("/diagnose", response_model=ChatbotResponse, tags=["Chatbot"])
 async def diagnose(query: UserQuery):
@@ -93,11 +109,11 @@ async def diagnose(query: UserQuery):
         
         final_response = get_llm_response(final_prompt, system_message)
         if not final_response:
-             raise ValueError("LLM failed to generate a response.")
-        
-        # --- Record the final, successful interaction ---
+            raise ValueError("LLM failed to generate a response.")
+            
+        # Record the final, successful interaction
         record_chat(user_input, normalized_symptoms, conditions, final_response)
-             
+        
         return ChatbotResponse(response=final_response)
 
     except Exception as e:
