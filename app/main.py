@@ -6,7 +6,7 @@ import os
 
 from fastapi.middleware.cors import CORSMiddleware
 # --- Add project root to the Python path ---
-current_dir = os.path.dirname(os.path.abspath(_file_))
+current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.append(project_root)
 # -----------------------------------------
