@@ -46,7 +46,7 @@ def get_llm_response(prompt: str, system_message: str = "You are a helpful assis
             temperature=0.0,
             # --- THIS IS THE FIX ---
             # Increased from 100 to 400 to allow for longer, more detailed responses.
-            max_tokens=400
+            max_tokens=1000
             # --- END OF FIX ---
         )
         
