@@ -6,7 +6,7 @@ import os
 
 from fastapi.middleware.cors import CORSMiddleware
 # --- Add project root to the Python path ---
-current_dir = os.path.dirname(os.path.abspath(_file_))
+current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.append(project_root)
 # -----------------------------------------
@@ -21,7 +21,7 @@ from utils.logger import get_logger
 # --- Corrected Import Path ---
 from utils.chat_recorder import record_chat
 
-logger = get_logger(_name_)
+logger = get_logger(__name__)
 app = FastAPI(
     title="Symptom Checker Chatbot (Stable Version)",
     description="An API that uses a reliable KG-First model for symptom analysis and records chats.",
