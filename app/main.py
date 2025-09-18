@@ -6,7 +6,7 @@ import os
 
 from fastapi.middleware.cors import CORSMiddleware
 # --- Add project root to the Python path ---
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.path.dirname(os.path.abspath(_file_))
 project_root = os.path.dirname(current_dir)
 sys.path.append(project_root)
 # -----------------------------------------
@@ -21,7 +21,7 @@ from utils.logger import get_logger
 # --- Corrected Import Path ---
 from utils.chat_recorder import record_chat
 
-logger = get_logger(__name__)
+logger = get_logger(_name_)
 app = FastAPI(
     title="Symptom Checker Chatbot (Stable Version)",
     description="An API that uses a reliable KG-First model for symptom analysis and records chats.",
@@ -46,6 +46,7 @@ class UserQuery(BaseModel):
 class ChatbotResponse(BaseModel):
     response: str
 
+# NEW: Root endpoint to resolve 404 errors for the base URL.
 @app.get("/")
 async def read_root():
     return {"message": "Symptom Checker API is up and running!"}
@@ -91,6 +92,7 @@ async def diagnose(query: UserQuery):
         
         system_message = "You are a helpful and empathetic AI medical assistant. Your role is to synthesize medical data into a clear, helpful, and safe response for the user."
         
+        # CHANGED: The prompt now explicitly asks for a concise summary.
         final_prompt = f"""
         A user described their symptoms: "{user_input}"
         Possible conditions are: {conditions_summary}.
@@ -98,13 +100,14 @@ async def diagnose(query: UserQuery):
         ---
         {detailed_info or "No detailed information was available."}
         ---
-        Synthesize this into a helpful, conversational response.
+        Synthesize this into a *brief and concise* conversational response. Limit your response to *three to four sentences*, focusing on the most likely condition and a single recommendation.
+        
         Follow these guidelines:
         1. Start with an empathetic acknowledgment.
-        2. Present the possible conditions and the detailed information.
+        2. Present the most likely condition and a brief summary of the information.
         3. If doctors are available, include this text EXACTLY: {doctor_info_string}
         4. You MUST end with this mandatory safety disclaimer:
-           "Please remember that I am an AI assistant and not a medical professional. This information is for educational purposes only and is not a substitute for a professional diagnosis. For an accurate assessment, it is essential to consult a qualified healthcare provider."
+           "This information is for educational purposes only and not medical advice. Consult a qualified healthcare provider for a diagnosis."
         """
         
         final_response = get_llm_response(final_prompt, system_message)
