@@ -21,7 +21,7 @@ from utils.logger import get_logger
 # --- Corrected Import Path ---
 from utils.chat_recorder import record_chat
 
-logger = get_logger(_name_)
+logger = get_logger(__name__)
 app = FastAPI(
     title="Symptom Checker Chatbot (Stable Version)",
     description="An API that uses a reliable KG-First model for symptom analysis and records chats.",
